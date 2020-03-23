@@ -1,0 +1,400 @@
+version: '3.5'
+services:
+  elasticsearch:
+    image: elasticsearch:7.5.2
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03,es04,es05
+      - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    networks:
+      - elk
+  es02:
+    image: elasticsearch:7.5.2
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elasticsearch,es03,es04,es05
+      - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+  es03:
+    image: elasticsearch:7.5.2
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elasticsearch,es02,es04,es05
+      - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+  es04:
+    image: elasticsearch:7.5.2
+    container_name: es04
+    environment:
+      - node.name=es04
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elasticsearch,es02,es03,es05
+      - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data04:/usr/share/elasticsearch/data
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+  es05:
+    image: elasticsearch:7.5.2
+    container_name: es05
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elasticsearch,es02,es03,es04
+      - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data05:/usr/share/elasticsearch/data
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+  logstash:
+    image: logstash:7.5.2
+    container_name: logstash
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /root/elk/logstash/pipeline/:/usr/share/logstash/pipeline/
+      - /root/elk/logstash/winlogbeat.json:/tmp/winlogbeat.json
+      - /root/elk/logstash/mitre_attack.csv:/usr/share/logstash/mitre_attack.csv
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+  ls02:
+    image: logstash:7.5.2
+    container_name: ls02
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /root/elk/ls02/pipeline/:/usr/share/logstash/pipeline/
+      - /root/elk/ls02/winlogbeat.json:/tmp/winlogbeat.json
+      - /root/elk/logstash/mitre_attack.csv:/usr/share/ls02/mitre_attack.csv
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+  ls03:
+    image: logstash:7.5.2
+    container_name: ls03
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /root/elk/ls03/pipeline/:/usr/share/logstash/pipeline/
+      - /root/elk/ls03/winlogbeat.json:/tmp/winlogbeat.json
+      - /root/elk/logstash/mitre_attack.csv:/usr/share/ls03/mitre_attack.csv
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+  ls04:
+    image: logstash:7.5.2
+    container_name: ls04
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /root/elk/ls04/pipeline/:/usr/share/logstash/pipeline/
+      - /root/elk/ls04/winlogbeat.json:/tmp/winlogbeat.json
+      - /root/elk/logstash/mitre_attack.csv:/usr/share/ls04/mitre_attack.csv
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+  ls05:
+    image: logstash:7.5.2
+    container_name: ls05
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /root/elk/ls05/pipeline/:/usr/share/logstash/pipeline/
+      - /root/elk/ls05/winlogbeat.json:/tmp/winlogbeat.json
+      - /root/elk/logstash/mitre_attack.csv:/usr/share/ls05/mitre_attack.csv
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+      - ls04
+  redis:
+    build: /root/elk/redis/
+    container_name: redis
+    ports:
+      - "6379:6379"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+      - ls04
+      - ls05
+  rd02:
+    build: /root/elk/redis/
+    container_name: rd02
+    ports:
+      - "6479:6379"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+      - ls04
+      - ls05
+      - redis
+  rd03:
+    build: /root/elk/redis/
+    container_name: rd03
+    ports:
+      - "6579:6379"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+      - ls04
+      - ls05
+      - redis
+      - rd02
+  rd04:
+    build: /root/elk/redis/
+    container_name: rd04
+    ports:
+      - "6679:6379"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+      - ls04
+      - ls05
+      - redis
+      - rd02
+      - rd03
+  rd05:
+    build: /root/elk/redis/
+    container_name: rd05
+    ports:
+      - "6779:6379"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+      - ls04
+      - ls05
+      - redis
+      - rd02
+      - rd03
+      - rd04
+  kibana:
+    image: kibana:7.5.2
+    container_name: kibana
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+      - ls04
+      - ls05
+      - redis
+      - rd02
+      - rd03
+      - rd04
+      - rd05
+  nginx:
+    build: /root/elk/nginx/ 
+    container_name: nginx 
+    volumes:
+      - /root/elk/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /root/elk/nginx/htpasswd.users:/etc/nginx/htpasswd.users
+    ports:
+      - "80:80"
+    networks:
+      - elk    
+    depends_on:
+      - elasticsearch
+      - es02
+      - es03
+      - es04
+      - es05
+      - logstash
+      - ls02
+      - ls03
+      - ls04
+      - ls05
+      - redis
+      - rd02
+      - rd03
+      - rd04
+      - rd05
+      - kibana
+
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+  data04:
+    driver: local
+  data05:
+    driver: local
+
+networks:
+  elk:
+    driver: bridge
+  

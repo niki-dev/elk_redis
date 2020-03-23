@@ -1,0 +1,26 @@
+.\winlogbeat.exe export template --es.version 7.5.2 | Out-File -Encoding UTF8 winlogbeat.template.json
+
+.\filebeat.exe export template --es.version 7.5.2 | Out-File -Encoding UTF8 filebeat.template.json
+
+sysctl -w vm.max_map_count=262144
+
+185.51.200.2
+
+
+
+
+
+
+
+
+
+
+
+root@vm:~/elk# cat /etc/rc.local
+#!/bin/bash
+/usr/local/bin/docker-compose -f /root/elk/docker-compose.yml up -d
+exit 0
+
+
+
+systemctl restart rc-local
