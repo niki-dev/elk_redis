@@ -8,7 +8,7 @@ services:
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=es02,es03,es04,es05
       - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
-      - bootstrap.memory_lock=false
+      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
     ulimits:
       memlock:
@@ -16,9 +16,8 @@ services:
         hard: -1
     volumes:
       - data01:/usr/share/elasticsearch/data
-    networks: 
-      elk:
-        ipv4_address: 172.18.0.2
+    networks:
+      - elk
   es02:
     image: elasticsearch:7.5.2
     container_name: es02
@@ -27,7 +26,7 @@ services:
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=elasticsearch,es03,es04,es05
       - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
-      - bootstrap.memory_lock=false
+      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
     ulimits:
       memlock:
@@ -36,8 +35,7 @@ services:
     volumes:
       - data02:/usr/share/elasticsearch/data
     networks:
-      elk:
-        ipv4_address: 172.18.0.3
+      - elk
     depends_on:
       - elasticsearch
   es03:
@@ -48,7 +46,7 @@ services:
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=elasticsearch,es02,es04,es05
       - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
-      - bootstrap.memory_lock=false
+      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
     ulimits:
       memlock:
@@ -57,8 +55,7 @@ services:
     volumes:
       - data03:/usr/share/elasticsearch/data
     networks:
-      elk:
-        ipv4_address: 172.18.0.4
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -70,7 +67,7 @@ services:
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=elasticsearch,es02,es03,es05
       - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
-      - bootstrap.memory_lock=false
+      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
     ulimits:
       memlock:
@@ -79,8 +76,7 @@ services:
     volumes:
       - data04:/usr/share/elasticsearch/data
     networks:
-      elk:
-        ipv4_address: 172.18.0.5
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -93,7 +89,7 @@ services:
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=elasticsearch,es02,es03,es04
       - cluster.initial_master_nodes=elasticsearch,es02,es03,es04,es05
-      - bootstrap.memory_lock=false
+      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
     ulimits:
       memlock:
@@ -102,8 +98,7 @@ services:
     volumes:
       - data05:/usr/share/elasticsearch/data
     networks:
-      elk:
-        ipv4_address: 172.18.0.6
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -121,8 +116,7 @@ services:
       - /root/elk/logstash/winlogbeat.json:/tmp/winlogbeat.json
       - /root/elk/logstash/mitre_attack.csv:/usr/share/logstash/mitre_attack.csv
     networks:
-      elk:
-        ipv4_address: 172.18.0.7
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -141,8 +135,7 @@ services:
       - /root/elk/ls02/winlogbeat.json:/tmp/winlogbeat.json
       - /root/elk/logstash/mitre_attack.csv:/usr/share/ls02/mitre_attack.csv
     networks:
-      elk:
-        ipv4_address: 172.18.0.8
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -162,8 +155,7 @@ services:
       - /root/elk/ls03/winlogbeat.json:/tmp/winlogbeat.json
       - /root/elk/logstash/mitre_attack.csv:/usr/share/ls03/mitre_attack.csv
     networks:
-      elk:
-        ipv4_address: 172.18.0.9
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -184,8 +176,7 @@ services:
       - /root/elk/ls04/winlogbeat.json:/tmp/winlogbeat.json
       - /root/elk/logstash/mitre_attack.csv:/usr/share/ls04/mitre_attack.csv
     networks:
-      elk:
-        ipv4_address: 172.18.0.10
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -207,8 +198,7 @@ services:
       - /root/elk/ls05/winlogbeat.json:/tmp/winlogbeat.json
       - /root/elk/logstash/mitre_attack.csv:/usr/share/ls05/mitre_attack.csv
     networks:
-      elk:
-        ipv4_address: 172.18.0.11
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -220,7 +210,7 @@ services:
       - ls03
       - ls04
   redis:
-    image: kclass/custom_redis
+    build: /root/elk/redis/
     container_name: redis
     ports:
       - "6379:6379"
@@ -229,8 +219,7 @@ services:
         soft: -1
         hard: -1
     networks:
-      elk:
-        ipv4_address: 172.18.0.12
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -243,7 +232,7 @@ services:
       - ls04
       - ls05
   rd02:
-    image: kclass/custom_redis
+    build: /root/elk/redis/
     container_name: rd02
     ports:
       - "6479:6379"
@@ -252,8 +241,7 @@ services:
         soft: -1
         hard: -1
     networks:
-      elk:
-        ipv4_address: 172.18.0.13
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -267,7 +255,7 @@ services:
       - ls05
       - redis
   rd03:
-    image: kclass/custom_redis
+    build: /root/elk/redis/
     container_name: rd03
     ports:
       - "6579:6379"
@@ -276,8 +264,7 @@ services:
         soft: -1
         hard: -1
     networks:
-      elk:
-        ipv4_address: 172.18.0.14
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -292,7 +279,7 @@ services:
       - redis
       - rd02
   rd04:
-    image: kclass/custom_redis
+    build: /root/elk/redis/
     container_name: rd04
     ports:
       - "6679:6379"
@@ -301,8 +288,7 @@ services:
         soft: -1
         hard: -1
     networks:
-      elk:
-        ipv4_address: 172.18.0.15
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -318,7 +304,7 @@ services:
       - rd02
       - rd03
   rd05:
-    image: kclass/custom_redis
+    build: /root/elk/redis/
     container_name: rd05
     ports:
       - "6779:6379"
@@ -327,8 +313,7 @@ services:
         soft: -1
         hard: -1
     networks:
-      elk:
-        ipv4_address: 172.18.0.16
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -352,8 +337,7 @@ services:
         soft: -1
         hard: -1
     networks:
-      elk:
-        ipv4_address: 172.18.0.17
+      - elk
     depends_on:
       - elasticsearch
       - es02
@@ -371,16 +355,15 @@ services:
       - rd04
       - rd05
   nginx:
-    image: kclass/custom_nginx
-    container_name: nginx
+    build: /root/elk/nginx/ 
+    container_name: nginx 
     volumes:
       - /root/elk/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - /root/elk/nginx/htpasswd.users:/etc/nginx/htpasswd.users
     ports:
       - "80:80"
     networks:
-      elk:
-        ipv4_address: 172.18.0.18
+      - elk    
     depends_on:
       - elasticsearch
       - es02
@@ -413,7 +396,5 @@ volumes:
 
 networks:
   elk:
-    driver: overlay
-    ipam:
-      config:
-        - subnet: 172.18.0.0/24
+    driver: bridge
+  
